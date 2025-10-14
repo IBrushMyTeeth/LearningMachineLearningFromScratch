@@ -1,0 +1,44 @@
+import torch as th
+import torch.nn as nn
+
+# Binary classification model
+# This model uses gradient descent from pytorch instead of the previously manual gradient descent
+# lambda_coef and p are used for regularization
+# p = 0 -> no regularization, p = 1 -> LASSO, p = 2 -> Ridge
+class BreastCancerClassifier(nn.Module):
+    def __init__(self, n_features, lambda_coef, p):
+        super(BreastCancerClassifier, self).__init__()
+        self.weights = nn.Parameter(th.randn((n_features, 1)))
+        self.bias = nn.Parameter(th.randn(1))
+        self.lambda_coef = lambda_coef
+        self.p = p
+    
+    def predict(self, input):
+        return input @ self.weights + self.bias
+    
+    # This is the sigmoid function
+    def probability(self, prediction):
+        return th.sigmoid(prediction)
+    
+    
+    def learn(self, inputs, labels, n_steps= 10000):
+        optimizer = th.optim.SGD(self.parameters(), lr= 0.01)
+        labels = labels.view(-1, 1)
+        for i in range(n_steps):
+            prediction = self.predict(inputs)
+            probs = self.probability(prediction)
+            
+            # This is a translation of the mathematical loss function for a 01 model, th.
+            # nn.Functional.cross_entroppy could also be used, this is a manual version for learning purposes
+            loss = - (1/inputs.shape[0]) * th.sum(labels * th.log(probs + 1e-8) + \
+                                            (1 - labels) * th.log(1-probs + 1e-8)) + \
+                                            (self.weights.abs()**self.p).sum()*self.lambda_coef
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            if i % 1000 == 0:
+                print(f"Step {i}, Loss = {loss.item():.4f}")
+    
+    def is_cancer(self, inputs):
+        probability = self.probability(self.predict(inputs))
+        return (probability >= 0.5).int()
