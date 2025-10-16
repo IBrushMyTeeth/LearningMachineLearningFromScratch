@@ -43,6 +43,7 @@ class Linear_model:
 
 
     def learn(self, X, labels, learning_rate= 0.01, tol=1e-6, max_iterations=10000):
+        self.loss_history = []
         X = self.extract_features(X)
         labels = labels.reshape(-1, 1)
         # Apply gradient descent to adjust weights
@@ -57,6 +58,9 @@ class Linear_model:
             # if the improvement is too little stop
             if abs(current_error - new_error) < tol:
                 break
+
+            if i % 500 == 0:
+                self.loss_history.append(current_error)
         print(f"Iterations: {i}")
 
 
@@ -76,19 +80,17 @@ model.learn(X_train, y_train)
 prediction = model.predict(X_test)
 
 
-
 # Compare actual vs predicted
 print("R²:", r2_score(y_test, prediction))
 print("RMSE:", np.sqrt(mean_squared_error(y_test, prediction)))
 print("MAE:", mean_absolute_error(y_test, prediction))
 
-plt.figure(figsize=(8, 6))
-plt.scatter(y_test, prediction, color='blue', alpha=0.6, label='Predicted vs Actual')
-plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2, label='Perfect Prediction')
-
-plt.title('Actual vs Predicted House Prices')
-plt.xlabel('Actual Median House Value')
-plt.ylabel('Predicted Median House Value')
-plt.legend()
+# Plot training loss over iterations
+plt.figure(figsize=(8, 5))
+plt.plot(model.loss_history, marker='o', linestyle='-')
+plt.title("Training Loss Over Iterations")
+plt.xlabel("Iteration (x500 steps)")  # because you log every 500 iterations
+plt.ylabel("Mean Squared Error (MSE)")
 plt.grid(True)
 plt.show()
+
