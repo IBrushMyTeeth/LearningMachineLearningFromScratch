@@ -13,7 +13,7 @@
 ## Features
 
 - Loads the Breast Cancer dataset from `scikit-learn`
-- Scales features using `StandardScaler`
+- Scales features 
 - Trains a **logistic regression** model
 - Evaluates model performance with **accuracy** and **confusion matrix**
 - Encapsulated in a single class for simplicity and structure
