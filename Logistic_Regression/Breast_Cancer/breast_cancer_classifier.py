@@ -13,7 +13,7 @@ class BreastCancerClassifier(nn.Module):
         self.lambda_coef = lambda_coef
         self.p = p
     
-    def predict(self, input):
+    def forward(self, input):
         return input @ self.weights + self.bias
     
     # This is the sigmoid function
@@ -21,12 +21,16 @@ class BreastCancerClassifier(nn.Module):
         return th.sigmoid(prediction)
     
     
-    def learn(self, inputs, labels, n_steps= 10000):
+    def learn(self, inputs, labels, tol = 1e-6, n_steps= 10000):
         optimizer = th.optim.SGD(self.parameters(), lr= 0.01)
+        # make sure labels has the right shape
         labels = labels.view(-1, 1)
+
+        # initiate previous loss as infinity
+        prev_loss = float("inf")
         for i in range(n_steps):
-            prediction = self.predict(inputs)
-            probs = self.probability(prediction)
+            logits = self.forward(inputs)
+            probs = self.probability(logits)
             
             # This is a translation of the mathematical loss function for a 01 model, th.
             # nn.Functional.cross_entroppy could also be used, this is a manual version for learning purposes
@@ -36,9 +40,17 @@ class BreastCancerClassifier(nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if i % 1000 == 0:
+
+            # check if improvement is too little
+            if abs(prev_loss - loss.item()) < tol:
+                print(f"Stopped early at step {i}, Loss = {loss.item():.6f}")
+                break
+
+            prev_loss = loss.item()
+
+            if i % 300 == 0:
                 print(f"Step {i}, Loss = {loss.item():.4f}")
     
     def is_cancer(self, inputs):
-        probability = self.probability(self.predict(inputs))
+        probability = self.probability(self.forward(inputs))
         return (probability >= 0.5).int()

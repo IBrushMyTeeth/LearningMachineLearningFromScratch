@@ -47,4 +47,4 @@ diagnosis = diagnosis.view(-1)
 y_test = y_test.view(-1)
 
 accuracy = (diagnosis == y_test).float().mean()
-print(accuracy)
+print(f"Accuracy = {accuracy: .5f}")
