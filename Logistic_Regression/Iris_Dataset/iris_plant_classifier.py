@@ -34,9 +34,11 @@ class IrisFlowerClassifier(torch.nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if i % 500 == 0:
+            if i % 100 == 0:
                 print(f"Step {i}: loss={loss.item():.4f}")
     
     def predict(self, X):
         logits = self.forward(X)
-        return torch.max(logits, dim=1)
+        # torch.max returns a tuple(values, indices)
+        # use torch.argmax instead
+        return torch.argmax(logits, dim=1)
