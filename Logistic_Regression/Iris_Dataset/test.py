@@ -1,7 +1,7 @@
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve, RocCurveDisplay
-import matplotlib as plt
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
 import torch
 import numpy
 from iris_plant_classifier import IrisFlowerClassifier
@@ -51,4 +51,22 @@ predictions = model.predict(X_test)
 accuracy = torch.mean((predictions == y_test).float())
 print(f"Accuracy = {accuracy:.2f}")
 
+# Drawing a roc-curve for versicolor vs rest
 
+# for plotting setosa vs rest, get all rows where true label = setosa
+# setosa = 0, versicolor = 1, virginia = 2
+y_binary_versicolor = (y_test == 1).detach().numpy()
+y_probs_versicolor = (model.forward(X_test)[:, 1]).detach().numpy()
+fpr, tpr, thresholds = roc_curve(y_binary_versicolor, y_probs_versicolor)
+roc_auc = auc(fpr, tpr)
+
+plt.figure()
+plt.plot(fpr, tpr, color='blue', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='gray', lw=1, linestyle='--')  # random chance line
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.0])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Versicolor vs Rest ROC Curve')
+plt.legend(loc="lower right")
+plt.show()
