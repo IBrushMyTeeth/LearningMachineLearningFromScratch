@@ -1,6 +1,6 @@
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import torch
 import numpy
@@ -55,6 +55,8 @@ print(f"Accuracy = {accuracy:.2f}")
 
 # for plotting setosa vs rest, get all rows where true label = setosa
 # setosa = 0, versicolor = 1, virginia = 2
+# Remember to convert tensors into arrays
+# Sklearn uses np arrays
 y_binary_versicolor = (y_test == 1).detach().numpy()
 y_probs_versicolor = (model.forward(X_test)[:, 1]).detach().numpy()
 fpr, tpr, thresholds = roc_curve(y_binary_versicolor, y_probs_versicolor)
@@ -69,4 +71,16 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('Versicolor vs Rest ROC Curve')
 plt.legend(loc="lower right")
+plt.show()
+
+
+# confusion matrix
+# Convert tensors into numpy arrays
+y_test = y_test.detach().numpy()
+predictions = predictions.detach().numpy()
+
+
+cm = confusion_matrix(y_test, predictions)
+disp = ConfusionMatrixDisplay(cm, display_labels=data.target_names)
+disp.plot(cmap="Blues")
 plt.show()
