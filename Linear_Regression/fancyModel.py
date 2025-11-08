@@ -7,18 +7,10 @@ class LinearModel(torch.nn.Module):
     def __init__(self, in_features, out_features):
         super().__init__()
         self.fc = torch.nn.Linear(in_features, out_features, bias=True, dtype=torch.float32)
-        self.optimizer = torch.optim.SGD(self.parameters(), lr=0.01)
 
     def forward(self, X):
         return self.fc(X)
     
-    def learn(self, X, labels, steps= 10000):
-        for i in range(steps):
-            logits = self.forward(X)
-            loss = torch.nn.functional.mse_loss(logits, labels)
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
 
 # fetch and split the data into train/test
 data = fetch_california_housing()
@@ -48,16 +40,27 @@ num_iterations = 250
 train_errors = torch.zeros(num_iterations)
 test_errors = torch.zeros(num_iterations)
 
-# For each iteration do a gradient descent step and save the errors
-for i in range(num_iterations):
-    model.learn(X_train, y_train, steps=1)
-    
-    with torch.no_grad():
-        training_pred = model.forward(X_train)
-        test_pred = model.forward(X_test)
+# train the model
+criterion = torch.nn.MSELoss(reduction="mean")
+optimizer = torch.optim.SGD(model.parameters(), lr= 0.01)
 
-        train_errors[i] = torch.sqrt(torch.nn.functional.mse_loss(training_pred, y_train))
-        test_errors[i] = torch.sqrt(torch.nn.functional.mse_loss(test_pred, y_test))
+for i in range(num_iterations):
+    # forward pass
+    y_pred = model(X_train)
+
+    # compute loss
+    loss = criterion(y_pred, y_train)
+
+    # backward pass
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    # record loss
+    with torch.no_grad():
+        train_errors[i] = torch.sqrt(criterion(model(X_train), y_train))
+        test_errors[i] = torch.sqrt(criterion(model(X_test), y_test))
+
 
 
 # plot the errors
