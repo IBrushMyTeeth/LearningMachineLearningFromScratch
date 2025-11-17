@@ -41,7 +41,7 @@ def compute_bias_variance(model_class, k, X_train, X_test, y_train, y_test, trai
 X_train, X_test, y_train, y_test = load_moons_dataset()
 
 # initialize
-max_k = 50
+max_k = 100
 bias_sq = np.zeros(max_k)
 var = np.zeros(max_k)
 total_error = np.zeros(max_k)
