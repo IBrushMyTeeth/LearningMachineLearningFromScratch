@@ -12,7 +12,7 @@ class IrisFlowerClassifier(torch.nn.Module):
         # the model learns one linear regression for each class
         self.weights = torch.nn.Parameter(torch.rand((n_features,n_classes)))
         # the bias can be 1D it will automatically be broadcasted
-        self.bias = torch.nn.Parameter(torch.zeros((n_classes)))
+        self.bias = torch.nn.Parameter(torch.zeros(n_classes))
         self.lambda_coef = lambda_coef
         self.p = p
 
