@@ -40,7 +40,6 @@ class BinaryModel(nn.Module):
 
             # check if improvement is too little
             if abs(prev_loss - loss.item()) < tol:
-                print(f"Stopped early at step {i}, Loss = {loss.item():.6f}")
                 break
 
             prev_loss = loss.item()
