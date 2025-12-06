@@ -18,6 +18,8 @@ model.learn(X_extracted, y)
 mean, var = model.forward(X_extracted)
 std = th.sqrt(var)
 
+# print std -> model assumes global variance, so models uncertainty doesnt depend on X
+print(std)
 
 # for plotting convert to numpy arrays
 X = X.numpy().ravel()
