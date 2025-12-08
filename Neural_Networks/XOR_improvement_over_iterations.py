@@ -55,6 +55,7 @@ for i in range(num_iterations):
     with th.no_grad():
         loss_collection[i] = criterion(pred, y)
 
+        # print predictions, they are very interesting to watch
         if i % 200 == 0:
             print(f"Predictions at iteration {i}: {pred.squeeze().tolist()}")
     
